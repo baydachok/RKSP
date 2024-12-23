@@ -1,0 +1,79 @@
+global:
+  imagePullPolicy: IfNotPresent
+  configServerUrl: "http://config-server.default.svc.cluster.local:8888"
+  eurekaServerUrl: "http://eureka-server.default.svc.cluster.local:8761/eureka/"
+  postgresql:
+    auth:
+      postgresPassword: postgres
+
+postgresql:
+  auth:
+    username: postgres
+    password: postgres
+    database: userdb
+  primary:
+    service:
+      ports:
+        postgresql: 5432
+    initdb:
+      scripts:
+        create_extra_dbs.sql: |
+          CREATE DATABASE modeldb;
+          CREATE DATABASE messagedb;
+
+config-server:
+  image: "nonlocal503/config-server:latest"
+  replicaCount: 1
+  service:
+    port: 8888
+  env:
+    SPRING_CLOUD_CONFIG_SERVER_GIT_URI: "https://github.com/RRifen/online-chat-config"
+    SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: "main"
+
+eureka-server:
+  image: "nonlocal503/eureka-server:latest"
+  replicaCount: 1
+  service:
+    port: 8761
+  env:
+    SPRING_PROFILES_ACTIVE: "default"
+
+api-gateway:
+  image: "nonlocal503/api-gateway:latest"
+  replicaCount: 1
+  service:
+    port: 8080
+  env:
+    SPRING_PROFILES_ACTIVE: "default"
+    SPRING_CLOUD_CONFIG_URI: "{{ .Values.global.configServerUrl }}"
+    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "{{ .Values.global.eurekaServerUrl }}"
+
+user-service:
+  image: "nonlocal503/user-service:latest"
+  replicaCount: 1
+  service:
+    port: 8080
+  env:
+    SPRING_PROFILES_ACTIVE: "default"
+    SPRING_CLOUD_CONFIG_URI: "{{ .Values.global.configServerUrl }}"
+    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "{{ .Values.global.eurekaServerUrl }}"
+
+message-service:
+  image: "nonlocal503/message-service:latest"
+  replicaCount: 1
+  service:
+    port: 8080
+  env:
+    SPRING_PROFILES_ACTIVE: "default"
+    SPRING_CLOUD_CONFIG_URI: "{{ .Values.global.configServerUrl }}"
+    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "{{ .Values.global.eurekaServerUrl }}"
+
+model-service:
+  image: "nonlocal503/model-service:latest"
+  replicaCount: 1
+  service:
+    port: 8080
+  env:
+    SPRING_PROFILES_ACTIVE: "default"
+    SPRING_CLOUD_CONFIG_URI: "{{ .Values.global.configServerUrl }}"
+    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "{{ .Values.global.eurekaServerUrl }}"

@@ -1,0 +1,8 @@
+# Project exclude paths
+/prac7/target/
+/prac8/api-gateway/target/
+/prac8/config-server/target/
+/prac8/eureka-server/target/
+/prac8/message-service/target/
+/prac8/model-service/target/
+/prac8/user-service/target/

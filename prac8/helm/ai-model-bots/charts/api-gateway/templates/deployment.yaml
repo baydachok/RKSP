@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  labels:
+    app: api-gateway
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: {{ .Values.global.eurekaServerUrl }}
+            - name: SPRING_CLOUD_CONFIG_URI
+              value: {{ .Values.global.configServerUrl }}
+            - name: SPRING_PROFILES_ACTIVE
+              value: "default"
+          ports:
+            - containerPort: {{ .Values.service.port }}
